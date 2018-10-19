@@ -1,25 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- 烟花效果 -->
+
 <head>
-    <title>点</title>
+    <title>拼接三角形</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   
-    <script id="vertexShader" type="x-shader/x-vertex"> 
-    </script>
-    <script id="fragmentShader" type="x-shader/x-fragment">
+    <script id="vertexShader" type="x-shader/x-vertex">
        
-</script>
-   
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment"></script>
+    <style>
+    h3{
+        text-align: center;
+    }
+    canvas{
+        position: absolute;
+        top: 60%;
+         left: 50%;
+         -ms-transform: translate(-50%,-50%);
+        -moz-transform: translate(-50%,-50%);
+         -o-transform: translate(-50%,-50%);
+         transform: translate(-50%,-50%); 
+    }
+
+    </style>
 </head>
 
 <body onload="main()">
-    <h1>点</h1>
+    <h3>拼接三角形</h3>
     <canvas id="webgl" width="400" height="400">
     Please use a browser that supports "canvas"
     </canvas>
-    <input type=number placeholder="输入0-1之间的数">
+    <!-- <input type=number placeholder="输入0-1之间的数"> -->
 
     <script src="../../lib/webgl-utils.js"></script>
     <script src="../../lib/webgl-debug.js"></script>
