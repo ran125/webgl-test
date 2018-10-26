@@ -17,11 +17,20 @@ void main() {
 var Tx =0.5, Ty =0.5,Tz =0.0; 
 var ANGLE_STEP =45.0;
 var t=0;
+var aa =getCircleTriangles(0.1,0.1,10);
+var canvas = document.getElementById('webgl');
+var gl = getWebGLContext(canvas);
+
+var w =canvas.innerWidth;h =canvas.innerHeight;
+var bb =[
+        0, 0,
+        w, 0,
+        0, h,
+        w, 0,
+        0, h,
+        w, h];
 function main() {
   //
-  var canvas = document.getElementById('webgl');
-  var gl = getWebGLContext(canvas);
-
   if (!gl) {
     console.log('Failded to get the rendering context for WebGL');
     return;
@@ -78,7 +87,8 @@ function initVertexBuffers(gl){
   //将缓冲区对象绑定到目标
   gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffer);
   //向缓冲区对象中写入数据
-  gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW);
+ 
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(bb),gl.STATIC_DRAW);
   var a_Position =gl.getAttribLocation(gl.program,'a_Position');
   //我们的目的是要 a_Position 能够动态从缓冲区对象中获取数据，所以我们还要设置获取的规则，比如，数据的类型，每个顶点占用多少个变量，这样才会正确处理缓冲区中的数值而不会乱来。
   //  设置变量获取数据规则
@@ -90,13 +100,36 @@ function initVertexBuffers(gl){
 }
 
 var g_points =[];
+
+function getCircleTriangles(x, y, r) {
+  var triangles = [],
+      inc = Math.PI * 2 / 6,
+      px = x + r,
+      py = y;
+ 
+  for (var i = 0; i <= Math.PI * 2 + inc; i += inc) {
+
+      var nx = x + r * Math.cos(i),
+          ny = y + r * Math.sin(i);
+
+      triangles.push(x, y, px, py, nx, ny);
+
+      px = nx;
+      py = ny;
+  }
+  return triangles;
+}
 function draw(gl,n,currpos,xformMatrix,u_xformMatrix){
   g_points.push(currpos.x,currpos.y);
   xformMatrix.setTranslate(currpos.x,currpos.y,0);
   gl.uniformMatrix4fv(u_xformMatrix,false,xformMatrix.elements);
   //清楚canvas 
   gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.drawArrays(gl.POINTS,0,n);
+  bb =[];
+  for (var i = 0; i < aa.length; i += 2) {
+   bb.push(aa[i], aa[i + 1]);
+ }
+  gl.drawArrays(gl.TRIANGLES,0,bb.length/2);
   // var len =g_points.length;
   // var a_Position =gl.getAttribLocation(gl.program,'a_Position');
   // for(var i =0;i<len;i++){
@@ -123,3 +156,7 @@ function animation(obj){
   return r_obj ;
   
 }
+//创建一个粒子 类
+//运动 位置
+//颜色
+
