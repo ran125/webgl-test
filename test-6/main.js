@@ -145,8 +145,9 @@ webgl.draw = function() {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, webgl.buffers.color);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(webgl.data.colors), gl.STATIC_DRAW);
-
+  
     gl.drawArrays(gl.TRIANGLES, 0, webgl.data.triangles.length / 2);
+   
 }
 
 function getCircleTriangles(x, y, r) {

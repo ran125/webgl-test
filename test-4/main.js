@@ -21,7 +21,8 @@ var aa =getCircleTriangles(0.1,0.1,10);
 var canvas = document.getElementById('webgl');
 var gl = getWebGLContext(canvas);
 
-var w =canvas.innerWidth;h =canvas.innerHeight;
+var w =canvas.innerWidth,
+h =canvas.innerHeight;
 var bb =[
         0, 0,
         w, 0,
@@ -71,12 +72,7 @@ function main() {
 
 //初始化顶点缓冲区
 function initVertexBuffers(gl){
-  var vertices =new Float32Array([
-    0.0,0.1,
-    0.3,0.2,
-    0.8,0.3,
-    0.9,0.4
-  ]);
+
   var n =4;//顶点个数
   //创建缓冲区对象
   var vertexBuffer =gl.createBuffer();
@@ -125,18 +121,22 @@ function draw(gl,n,currpos,xformMatrix,u_xformMatrix){
   gl.uniformMatrix4fv(u_xformMatrix,false,xformMatrix.elements);
   //清楚canvas 
   gl.clear(gl.COLOR_BUFFER_BIT);
-  bb =[];
-  for (var i = 0; i < aa.length; i += 2) {
-   bb.push(aa[i], aa[i + 1]);
- }
-  gl.drawArrays(gl.TRIANGLES,0,bb.length/2);
-  // var len =g_points.length;
-  // var a_Position =gl.getAttribLocation(gl.program,'a_Position');
-  // for(var i =0;i<len;i++){
-  //   var xy =g_points[i];
-  //   gl.vertexAttrib3f(a_Position,xy[0], xy[1], 0.0);
-  //   gl.drawArrays(gl.POINTS,0,n);
-  // }
+//   bb =[];
+//   var a_Position =gl.getAttribLocation(gl.program,'a_Position');
+//   for (var i = 0; i < aa.length; i += 2) {
+//    bb.push(aa[i], aa[i + 1]);
+//    var xy =aa[i];
+//    gl.vertexAttrib3f(a_Position,xy[0], xy[1], 0.0);
+//    gl.drawArrays(gl.POINTS,0,bb.length/2);
+//  }
+ 
+  var len =g_points.length;
+  var a_Position =gl.getAttribLocation(gl.program,'a_Position');
+  for(var i =0;i<len;i++){
+    var xy =g_points[i];
+    gl.vertexAttrib3f(a_Position,xy[0], xy[1], 0.0);
+    gl.drawArrays(gl.POINTS,0,n);
+  }
   t+=0.1;
 }
 var g_last =Date.now();//记录上一次调用的时刻
