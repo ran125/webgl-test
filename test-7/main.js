@@ -5,7 +5,7 @@ var VSHADER_SOURCE =
   'uniform mat4 u_ModelMatrix;\n' + //模型矩阵
   'void main() {\n' +
   '  gl_Position = u_ModelMatrix * a_Position;\n' +
-  '  gl_PointSize =10.0; \n' +
+  '  gl_PointSize =3.0; \n' +
   '}\n';
 
 // Fragment shader program
@@ -15,28 +15,47 @@ var FSHADER_SOURCE =
   '}\n';
 
 // Rotation angle (degrees/second)
-var count = 0;
+var count = 0; var circlePoint =[];
 class Point {
   constructor() {
     this.pos ={
-      x:0.0,
-      y:0.0
+      x:0.5,
+      y:0.5
     }
-    this.V0 = 1;
-    this.a = -0.5;
-    this.point =[];
+    this.V0 = 1.1;
+    this.a = -0.1;
+    this.point ={x:0.,y:0.};
+    // circlePoint.push(this.point.x,this.point.y);
+    this.timeStar = Date.now();
+    this.time = 0;
   }
+  
   //创建一个点s
-  creat() {
-    this.point.push(0., 0.)
-  }
+  // creat() {
+  //   circlePoint.push(this.point[0],this.point[1])
+  // }
   //删除一个点
   destory() {
-    this.point.splice(-1, 2);
+    circlePoint.splice(-1, 2);
   }
-  setPos(time) {
-    this.pos.x = (this.V0 * time) - this.pos.x;
-    this.pos.y = ((this.V0 * time + this.a * time * time)) - this.pos.y;
+  autoRunOrbit(currenTime) {
+    var time = this.timeStar - currenTime;
+   if(time !="NaN"){
+    if(this.time >10){
+      this.time =0;
+      this.destory();
+    }
+    if(this.V0 < 0){
+      this.V0 = 1.0
+    }
+    this.pos.x = ((this.V0 * this.time) - this.pos.x)/10;
+    this.pos.y = (((this.V0 * this.time + this.a * this.time * this.time)) - this.pos.y)/10;
+    this.point = {x:this.pos.x,y:this.pos.y};
+ 
+    circlePoint.push(this.point.x,this.point.y);
+    this.time++;
+    this.V0 = this.V0-0.1;
+   }
   }
   getPos() {
     return [this.pos.x, this.pos.y];
@@ -94,24 +113,11 @@ function main() {
 }
 
 function initVertexBuffers(gl,time) {
-  var point = new Point();
-  point.setPos(time);
-  console.log(point.getPos());
-
-  if (count % 4 == 0) {
-    point.creat(0, 0.5);
+  // var point = new Point();
+  if(time != "undefined"){
+    point.autoRunOrbit(time);
   }
-  if (count % 4 == 1) {
-    point.creat(0, -0.5);
-  }
-  if (count % 4 == 2) {
-    point.creat(-0.5, 0.);
-  }
-  if (count % 4 == 3) {
-    point.creat(0.5, 0);
-  }
-
-  var vertices = new Float32Array(point.point);
+  var vertices = new Float32Array(circlePoint);
 
   // g_poiont.push
   var n = vertices.length / 2; // The number of vertices
@@ -138,7 +144,6 @@ function initVertexBuffers(gl,time) {
 
   // Enable the assignment to a_Position variable
   gl.enableVertexAttribArray(a_Position);
-  count++;
   return n;
 }
 
@@ -164,11 +169,11 @@ function animate(pos) {
   // 计算距离上次调用经过多长时间
   var now = Date.now();
   var elapsed = now - g_last;
-  if (elapsed > 1000) {
+  if (elapsed > 500) {
     g_last = Date.now();
     draw(gl, n, modelMatrix, u_ModelMatrix); // Draw the triangle
-    n = initVertexBuffers(gl,elapsed/1000);
-  }
+    n = initVertexBuffers(gl,now);
+   }
   //超出区域销毁
   // if(n>1){
   //   point.destory();
