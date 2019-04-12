@@ -1,185 +1,147 @@
-// RotatingTriangle.js (c) 2012 matsuda
-// Vertex shader program
 var VSHADER_SOURCE =
-  'attribute vec4 a_Position;\n' +
-  'uniform mat4 u_ModelMatrix;\n' + //模型矩阵
+  'attribute vec2 a_Position;\n' +
+  'uniform vec2 u_resolution;\n' + //模型矩阵
   'void main() {\n' +
-  '  gl_Position = u_ModelMatrix * a_Position;\n' +
+  '  gl_Position = vec4( vec2( 1, -1 ) * ( ( a_Position / u_resolution ) * 2.0 - 1.0 ), 0, 1 );\n' +
   '  gl_PointSize =3.0; \n' +
-  '}\n';
+  '}\n'
 
-// Fragment shader program
 var FSHADER_SOURCE =
-  'void main() {\n' +
-  '  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n' +
-  '}\n';
+  'void main() {\n' + '  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n' + '}\n'
 
-// Rotation angle (degrees/second)
-var count = 0; var circlePoint =[];
+var canvas = document.getElementById('webgl')
+
+var gl = getWebGLContext(canvas),
+  w = (canvas.width = window.innerWidth),
+  h = (canvas.height = window.innerHeight)
+
+var tick = 0,
+  points = [],
+  cx = w / 2,
+  cy = h / 2
+
+var count = 0
+var circlePoint = []; //
+
+//创建点
 class Point {
   constructor() {
-    this.pos ={
-      x:0.5,
-      y:0.5
-    }
-    this.V0 = 1.1;
-    this.a = -0.1;
-    this.point ={x:0.,y:0.};
-    // circlePoint.push(this.point.x,this.point.y);
-    this.timeStar = Date.now();
-    this.time = 0;
+    this.size = 5 + 5 * Math.random() //?
+    this.x = cx
+    this.y = cy
+    this.vx = (Math.random() - 0.5) * 2 * 4 //webgl 坐标范围是【-0.5，0.5】
+    this.vy = -2 - 4 * Math.random()
+    this.time = 1
   }
-  
-  //创建一个点s
-  // creat() {
-  //   circlePoint.push(this.point[0],this.point[1])
-  // }
-  //删除一个点
-  destory() {
-    circlePoint.splice(-1, 2);
-  }
-  autoRunOrbit(currenTime) {
-    var time = this.timeStar - currenTime;
-   if(time !="NaN"){
-    if(this.time >10){
-      this.time =0;
-      this.destory();
-    }
-    if(this.V0 < 0){
-      this.V0 = 1.0
-    }
-    this.pos.x = ((this.V0 * this.time) - this.pos.x)/10;
-    this.pos.y = (((this.V0 * this.time + this.a * this.time * this.time)) - this.pos.y)/10;
-    this.point = {x:this.pos.x,y:this.pos.y};
- 
-    circlePoint.push(this.point.x,this.point.y);
-    this.time++;
-    this.V0 = this.V0-0.1;
-   }
-  }
-  getPos() {
-    return [this.pos.x, this.pos.y];
-  }
-  magRange(val){
-    if(val){
+
+  step() {
+    this.x += this.vx *= .995;
+    this.y += this.vy += .05;
+
+    this.time = this.time * .99;
+
+    // var triangles = getCircleTriangles(this.x, this.y, this.size * this.time);
+
+    var triangles = [this.x, this.y];
+    for (var i = 0; i < triangles.length; i = i + 2) {
+      circlePoint.push(triangles[i], triangles[i + 1]);
 
     }
+
+    if (this.y - this.size > h) this.reset()
   }
-}
-var point = new Point();
-var canvas = document.getElementById('webgl');
-var gl = getWebGLContext(canvas);
-// Initialize shaders
-if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
-  console.log('Failed to intialize shaders.');
-  // return;
+  reset() {
+    this.size = 5 + 5 * Math.random();
+    this.x = cx;
+    this.y = cy;
+    this.vx = (Math.random() - .5) * 2 * 4;
+    this.vy = -2 - 4 * Math.random();
+    this.time = 1;
+  }
+
 }
 
-// Write the positions of vertices to a vertex shader
-var n = initVertexBuffers(gl);
-if (n < 0) {
-  console.log('Failed to set the positions of the vertices');
-  // return;
-}
-// Specify the color for clearing <canvas>
-gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
-// Get storage location of u_ModelMatrix
-var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
-if (!u_ModelMatrix) {
-  console.log('Failed to get the storage location of u_ModelMatrix');
-  // return;
-}
 // Model matrix
-var modelMatrix = new Matrix4();
+var modelMatrix = new Matrix4()
 var currentPos = {
   x: 0,
   y: 0.0
 }
+var vertexBuffer = gl.createBuffer()
+var vertices = new Float32Array(circlePoint)
+
+function getCircleTriangles(x, y, r) {
+  var triangles = [],
+    inc = (Math.PI * 2) / 6,
+    px = x + r,
+    py = y
+
+  for (var i = 0; i <= Math.PI * 2 + inc; i = i + inc) {
+    var nx = x + r * Math.cos(i),
+      ny = y + r * Math.sin(i)
+
+    triangles.push(x, y, px, py, nx, ny)
+
+    px = nx
+    py = ny
+  }
+
+  return triangles
+}
+
+function animate() {
+  window.requestAnimationFrame(animate);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  //操作数据
+  if (circlePoint.length < 1000) {
+    points.push(new Point(), new Point())
+  } else {
+    circlePoint = [];
+  }
+
+  points.sort(function (a, b) {
+    return a.time - b.time
+  })
+
+  points.map(function (point) {
+    point.step()
+  })
+
+  draw()
+}
+
+function draw() {
+  vertices = new Float32Array(circlePoint);
+  var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+  var a_buffer = gl.createBuffer();
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, a_buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+  gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0)
+  //将当前绑定的缓冲区绑定到当前顶点缓冲区对象的通用顶点属性
+  gl.enableVertexAttribArray(a_Position)
+  gl.drawArrays(gl.POINTS, 0, vertices.length / 2);
+  // gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 2)
+}
 
 function main() {
-  // Retrieve <canvas> element
-  // Get the rendering context for WebGL
+  // 获取WebGL上下文对象
   if (!gl) {
-    console.log('Failed to get the rendering context for WebGL');
-    return;
-  }
-  // Start drawing
-  var tick = function () {
-    currentPos = animate(currentPos); // Update the rotation angle
-    requestAnimationFrame(tick, canvas); // Request that the browser calls tick
-  };
-  tick();
-}
-
-function initVertexBuffers(gl,time) {
-  // var point = new Point();
-  if(time != "undefined"){
-    point.autoRunOrbit(time);
-  }
-  var vertices = new Float32Array(circlePoint);
-
-  // g_poiont.push
-  var n = vertices.length / 2; // The number of vertices
-
-  // Create a buffer object
-  var vertexBuffer = gl.createBuffer();
-  if (!vertexBuffer) {
-    console.log('Failed to create the buffer object');
-    return -1;
+    console.log('获取 context for WebGL失败')
+    return
   }
 
-  // Bind the buffer object to target
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-  // Write date into the buffer object
-  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-
-  // Assign the buffer object to a_Position variable
-  var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-  if (a_Position < 0) {
-    console.log('Failed to get the storage location of a_Position');
-    return -1;
+  // 初始化着色器
+  if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
+    console.log('Failed to intialize shaders.')
+    return
   }
-  gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+  gl.clearColor(0.0, 0.0, 0.0, 1.0)
 
-  // Enable the assignment to a_Position variable
-  gl.enableVertexAttribArray(a_Position);
-  return n;
-}
+  gl.viewport(0, 0, w, h)
 
-function draw(gl, n, modelMatrix, u_ModelMatrix) {
-  // Set the rotation matrix
-  // modelMatrix.setRotate(currentAngle, 0, 0, 1); // Rotation angle, rotation axis (0, 0, 1)
-  // modelMatrix.setTranslate(currentPos.x, currentPos.y, 0, 1);//先注释掉  然后实现增加点   ，然后消失点
+  var u_resolution = gl.getUniformLocation(gl.program, 'u_resolution')
+  gl.uniform2f(u_resolution, w, h)
 
-  // Pass the rotation matrix to the vertex shader
-  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
-
-  // Clear <canvas>
-  gl.clear(gl.COLOR_BUFFER_BIT);
-
-  // Draw the rectangle
-  gl.drawArrays(gl.POINTS, 0, n);
-}
-
-// 记录上一次调用函数的时刻
-var g_last = Date.now();
-
-function animate(pos) {
-  // 计算距离上次调用经过多长时间
-  var now = Date.now();
-  var elapsed = now - g_last;
-  if (elapsed > 500) {
-    g_last = Date.now();
-    draw(gl, n, modelMatrix, u_ModelMatrix); // Draw the triangle
-    n = initVertexBuffers(gl,now);
-   }
-  //超出区域销毁
-  // if(n>1){
-  //   point.destory();
-  // }
-  // 根据距离上次调用的时间，更新当前数据
-  // var newAngle = angle + (ANGLE_STEP * elapsed) / 1000.0;//旋转角度每秒   在烟花函数里边 这个是平移的距离根据烟花轨迹
-
-  return pos;
+  animate() // Update the rotation angle
 }

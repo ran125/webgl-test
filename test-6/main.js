@@ -1,13 +1,13 @@
 // helper (which I did write)
 Helper = {};
-Helper.createShader = function(gl, type, source) {
+Helper.createShader = function (gl, type, source) {
     var shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
 
     return shader;
 }
-Helper.createProgram = function(gl, vertexShader, fragmentShader) {
+Helper.createProgram = function (gl, vertexShader, fragmentShader) {
     var program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
@@ -15,6 +15,7 @@ Helper.createProgram = function(gl, vertexShader, fragmentShader) {
 
     return program;
 }
+
 Helper.pixel2DVertexVaryingShader = `
 attribute vec2 a_position;
 uniform vec2 u_resolution;
@@ -77,7 +78,8 @@ var gl = c.getContext('webgl'),
     w = c.width = window.innerWidth,
     h = c.height = window.innerHeight
 
-, webgl = {};
+    ,
+    webgl = {};
 
 webgl.shaderProgram =
     Helper.createProgram(
@@ -115,7 +117,7 @@ webgl.data = {
     triangles: [], // x, y
     colors: [] // hue, light
 };
-webgl.clear = function() {
+webgl.clear = function () {
     webgl.data.triangles = [
         0, 0,
         w, 0,
@@ -138,16 +140,16 @@ webgl.clear = function() {
     webgl.data.triangles = [];
     webgl.data.colors = [];
 }
-webgl.draw = function() {
+webgl.draw = function () {
 
     gl.bindBuffer(gl.ARRAY_BUFFER, webgl.buffers.position);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(webgl.data.triangles), gl.STATIC_DRAW);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, webgl.buffers.color);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(webgl.data.colors), gl.STATIC_DRAW);
-  
+
     gl.drawArrays(gl.TRIANGLES, 0, webgl.data.triangles.length / 2);
-   
+
 }
 
 function getCircleTriangles(x, y, r) {
@@ -174,7 +176,7 @@ function getCircleTriangles(x, y, r) {
 function Particle() {
     this.reset();
 }
-Particle.prototype.reset = function() {
+Particle.prototype.reset = function () {
     this.size = 5 + 5 * Math.random();
     this.x = cx;
     this.y = cy;
@@ -182,7 +184,7 @@ Particle.prototype.reset = function() {
     this.vy = -2 - 4 * Math.random();
     this.time = 1;
 }
-Particle.prototype.step = function() {
+Particle.prototype.step = function () {
     this.x += this.vx *= .995;
     this.y += this.vy += .05;
 
@@ -214,10 +216,10 @@ function anim() {
     if (particles.length < 1000)
         particles.push(new Particle, new Particle);
 
-    particles.sort(function(a, b) {
+    particles.sort(function (a, b) {
         return a.time - b.time
     });
-    particles.map(function(particle) {
+    particles.map(function (particle) {
         particle.step()
     });
 
@@ -227,12 +229,12 @@ function anim() {
 }
 anim();
 
-window.addEventListener('click', function(e) {
-
+window.addEventListener('click', function (e) {
     cx = e.clientX;
     cy = e.clientY;
 })
-window.addEventListener('resize', function() {
+
+window.addEventListener('resize', function () {
 
     w = c.width = window.innerWidth;
     h = c.height = window.innerHeight;
