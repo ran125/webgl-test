@@ -117,11 +117,12 @@ function draw() {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, a_buffer);
   gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+  
   gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0)
   //将当前绑定的缓冲区绑定到当前顶点缓冲区对象的通用顶点属性
   gl.enableVertexAttribArray(a_Position)
-  gl.drawArrays(gl.POINTS, 0, vertices.length / 2);
-  // gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 2)
+  // gl.drawArrays(gl.POINTS, 0, vertices.length / 2);
+  gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 2)
 }
 
 function main() {

@@ -72,3 +72,133 @@ function click(ev,gl,canvas,a_Position,u_FragColor){
 
   }
 }
+fruits();
+function fruits(){}
+  fruits.prototype ={
+    color:"red",
+    size:'12',
+    say:function(){
+      console.log("my color is "+this.size);
+      // this.say()
+    }
+  }
+  var apple =new fruits();
+  apple.say();
+  banana ={
+    color:"yellow",
+    size:'16',
+    say:function(){
+      console.log("输出"+app.color)
+    }
+  }
+  apple.say.call(apple,banana);
+  apple.say.apply(apple,banana);
+
+// var array1 = [12 , "foo" , {name:"Joe"} , -2458]; 
+// var array2 = ["Doe" , 555 , 100];
+// var array3 =["wrr","123"]; 
+
+// Array.prototype.console =function(arr1,arr2){
+//   console.log(this);
+//   console.log("参数1"+arr1)
+//   console.log("参数2"+arr2)
+// }
+// Array.prototype.console.apply(array1,[array2,array3]); 
+// // array1.console();
+// // array2.console();
+
+// var  numbers = [5, 458 , 120 , -215 ]; 
+// var maxInNumbers = Math.max.apply(numbers),   //458
+//     maxInNumbers = Math.max.call(5, 458 , 120 , -215); //458
+//     console.log(maxInNumbers,maxInNumbers);
+//     var  numbers = [5, 458 , 120 , -215 ]; 
+//   function isArray(obj){ 
+//     console.log(obj.toString());
+//     var aa ={
+//       a:1,b:2
+//     }
+//     console.log(aa.toString());
+//       return Object.prototype.toString.call(obj) === '[object Array]' ;
+//   }
+//  var aa =isArray( numbers);
+// function Parent1(){
+//   this.name='wrr'
+// }
+// Parent1.prototype.say =function(){
+//   console.log(this.name);
+// }
+// function Children(){
+//   Parent1.apply(this);
+//   this.age ="25"
+// }
+// console.log(new Children());
+
+// function Children1(){
+//  this.type ="children1"
+// }
+
+// Children1.prototype =new Parent1();
+// console.log(new Children1())
+
+
+
+// /**
+//    * 借助原型链实现继承
+//    */
+//   function Parent1(){
+//     this.name='wrr'
+//   }
+//   Parent1.prototype.say =function(){
+//     console.log(this.name);
+//   }
+//   function Child2() {
+//     this.type = 'child2';
+//   }
+//   Child2.prototype = Parent1.prototype; // prototype使这个构造函数的实例能访问到原型对象上
+//   console.log(new Child2().__proto__);
+//   console.log(new Child2().__proto__ === Parent1.prototype); // false
+
+//   var s1 = new Child2(); // 实例
+//   var s2 = new Child2();
+//   // console.log(s1.play, s2.play);
+//   // s1.play.push(4);
+
+//   console.log(s1.__proto__ === s2.__proto__); // true // 父类的原型对象
+
+
+//4 
+
+
+
+// A
+var a = b = 1;
+b = 2;
+
+// B
+var a = {name: 'jack', age: 27};
+var b = a;
+b.name = 'may';
+
+// C
+var a = [1, 3, 5];
+var b = [...a];
+
+// D
+var a = [1, 2, 3];
+var b = a.push(4); // b = 4;
+
+//数组去重 
+
+function sele(arr){
+  var temp = [];
+  for( var i = 0 ; i < arr.length ; i++ ){
+      if( temp.indexOf( arr[ i ] ) == -1 ){
+          temp.push( arr[ i ] );
+      }
+  }
+  return temp;
+}
+var arr = ['aa', 'bb', 'cc', '', 1, 0, '1', 1, 'bb', null, undefined, null];
+console.log(sele(arr));
+
+
